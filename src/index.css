@@ -1,0 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: #0A0614;
+    color: #F4E8C8;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  #root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-ember text-ink font-display font-semibold px-5 py-3 rounded-btn
+           hover:bg-ember-hot active:scale-95 transition-all duration-150
+           text-sm tracking-wide;
+  }
+
+  .btn-grade {
+    @apply flex-1 py-3.5 rounded-btn font-display font-semibold text-sm
+           transition-all duration-150 active:scale-95 select-none;
+  }
+
+  .btn-grade-again {
+    @apply btn-grade bg-void border border-red-800/60 text-red-300
+           hover:bg-red-900/30 hover:border-red-600;
+  }
+
+  .btn-grade-hard {
+    @apply btn-grade bg-void border border-ash/30 text-bone
+           hover:bg-white/5 hover:border-ash/60;
+  }
+
+  .btn-grade-easy {
+    @apply btn-grade bg-void border border-demon-purple/60 text-demon-purple-light
+           hover:bg-demon-purple/10 hover:border-demon-purple;
+  }
+
+  .btn-utility {
+    @apply flex items-center gap-1.5 px-3 py-2 rounded-btn text-ash
+           border border-white/10 hover:border-white/20 hover:text-bone
+           bg-void/50 transition-all duration-150 text-xs font-ui select-none;
+  }
+
+  .card {
+    @apply bg-void rounded-card border border-white/8 shadow-card;
+  }
+
+  .card-elevated {
+    @apply card shadow-glow border-demon-purple/20;
+  }
+
+  .note-chip {
+    @apply px-2.5 py-1 rounded-chip text-xs font-mono font-medium
+           border transition-colors duration-150 select-none;
+  }
+
+  .note-chip-root {
+    @apply note-chip bg-ember/15 border-ember/40 text-ember;
+  }
+
+  .note-chip-tone {
+    @apply note-chip bg-white/5 border-white/15 text-bone;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-display
+           font-semibold tracking-wide uppercase;
+  }
+
+  .badge-due { @apply badge bg-ember/20 text-ember border border-ember/30; }
+  .badge-weak { @apply badge bg-red-900/30 text-red-300 border border-red-700/30; }
+  .badge-new { @apply badge bg-ice/15 text-ice border border-ice/25; }
+  .badge-variety { @apply badge bg-ash/15 text-ash border border-ash/25; }
+
+  .seg-control {
+    @apply flex bg-ink rounded-btn p-0.5 gap-0.5;
+  }
+
+  .seg-btn {
+    @apply flex-1 py-1.5 px-2.5 rounded text-xs font-ui font-medium
+           transition-all duration-150 text-ash hover:text-bone select-none cursor-pointer;
+  }
+
+  .seg-btn-active {
+    @apply seg-btn bg-void text-bone border border-white/10;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #4A2D8A #0A0614;
+  }
+}
+
+@layer utilities {
+  .text-gradient-ember {
+    background: linear-gradient(135deg, #F28C28, #FF6A1A);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-purple {
+    background: linear-gradient(135deg, #9B6EE8, #6F42C1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .border-white\/8 { border-color: rgba(255,255,255,0.08); }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
