@@ -127,8 +127,8 @@ export function FretboardPanel({
         {positionMode === 'focus' && <span className="text-ash/40">· focus zone</span>}
       </div>
 
-      {/* SVG Fretboard */}
-      <div className="w-full">
+      {/* SVG Fretboard — maxWidth keeps rendered height ≈ svgHeight × 1.6 on wide screens */}
+      <div className="w-full" style={{ maxWidth: `${Math.round(svgWidth * 1.6)}px`, margin: '0 auto' }}>
         <svg
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
           width="100%"

@@ -29,20 +29,20 @@ export function ActionPanel({ onGrade, onHold, onNext, onFocus, isHeld, isFocuse
 
         {/* Grade buttons */}
         <div className="flex gap-1.5 mb-2">
-          <button onClick={() => handleGrade('again')} className="btn-grade-again flex-col py-2.5 gap-0.5">
-            <span className="text-sm leading-none">↺</span>
+          <button onClick={() => handleGrade('again')} className="btn-grade-again">
+            <span className="text-base leading-none">↺</span>
             <span className="text-xs">Again</span>
           </button>
-          <button onClick={() => handleGrade('hard')} className="btn-grade-hard flex-col py-2.5 gap-0.5">
-            <span className="text-sm leading-none">◐</span>
+          <button onClick={() => handleGrade('hard')} className="btn-grade-hard">
+            <span className="text-base leading-none">◐</span>
             <span className="text-xs">Hard</span>
           </button>
-          <button onClick={() => handleGrade('good')} className="btn-grade-good flex-col py-2.5 gap-0.5">
-            <span className="text-sm leading-none">✓</span>
+          <button onClick={() => handleGrade('good')} className="btn-grade-good">
+            <span className="text-base leading-none">✓</span>
             <span className="text-xs">Good</span>
           </button>
-          <button onClick={() => handleGrade('easy')} className="btn-grade-easy flex-col py-2.5 gap-0.5">
-            <span className="text-sm leading-none">⚡</span>
+          <button onClick={() => handleGrade('easy')} className="btn-grade-easy">
+            <span className="text-base leading-none">⚡</span>
             <span className="text-xs">Easy</span>
           </button>
         </div>
