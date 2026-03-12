@@ -41,10 +41,17 @@ export function ActionPanel({ onGrade, onHold, onNext, onFocus, isHeld, isFocuse
           <span>Hard</span>
         </button>
         <button
+          onClick={() => handleGrade('good')}
+          className="btn-grade-good"
+        >
+          <span className="block text-sm">✓</span>
+          <span>Good</span>
+        </button>
+        <button
           onClick={() => handleGrade('easy')}
           className="btn-grade-easy"
         >
-          <span className="block text-sm">✓</span>
+          <span className="block text-sm">⚡</span>
           <span>Easy</span>
         </button>
       </div>
@@ -111,8 +118,11 @@ export function StickyMobileBar({ onGrade, onHold, onNext, isHeld }: StickyMobil
           <button onClick={() => handleGrade('hard')} className="btn-grade-hard text-xs py-3">
             <span className="text-base">◐</span> Hard
           </button>
+          <button onClick={() => handleGrade('good')} className="btn-grade-good text-xs py-3">
+            <span className="text-base">✓</span> Good
+          </button>
           <button onClick={() => handleGrade('easy')} className="btn-grade-easy text-xs py-3">
-            <span className="text-base">✓</span> Easy
+            <span className="text-base">⚡</span> Easy
           </button>
         </div>
         <div className="flex gap-2">

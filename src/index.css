@@ -54,6 +54,11 @@
            hover:bg-white/5 hover:border-ash/60;
   }
 
+  .btn-grade-good {
+    @apply btn-grade bg-void border border-emerald-700/60 text-emerald-400
+           hover:bg-emerald-900/20 hover:border-emerald-600;
+  }
+
   .btn-grade-easy {
     @apply btn-grade bg-void border border-demon-purple/60 text-demon-purple-light
            hover:bg-demon-purple/10 hover:border-demon-purple;

@@ -141,7 +141,7 @@ export function isDroneRunning(): boolean {
 
 // ─── Grade sound cue ─────────────────────────────────────────────────────────
 
-export function playGradeCue(grade: 'again' | 'hard' | 'easy'): void {
+export function playGradeCue(grade: 'again' | 'hard' | 'good' | 'easy'): void {
   try {
     const ctx = getCtx()
     const osc = ctx.createOscillator()
@@ -153,11 +153,16 @@ export function playGradeCue(grade: 'again' | 'hard' | 'easy'): void {
       osc.frequency.value = 880
       gain.gain.setValueAtTime(0.15, ctx.currentTime)
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12)
+    } else if (grade === 'good') {
+      osc.frequency.value = 740
+      gain.gain.setValueAtTime(0.12, ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1)
     } else if (grade === 'hard') {
-      osc.frequency.value = 660
+      osc.frequency.value = 550
       gain.gain.setValueAtTime(0.1, ctx.currentTime)
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.09)
     } else {
+      // again
       osc.frequency.value = 220
       gain.gain.setValueAtTime(0.12, ctx.currentTime)
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15)

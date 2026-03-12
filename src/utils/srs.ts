@@ -7,6 +7,7 @@ const MIN_EASE     = 1.3
 const AGAIN_INTERVAL = 1          // 1 day
 const HARD_FACTOR    = 0.8
 const EASY_BONUS     = 1.3
+const GOOD_FACTOR    = 1.0        // standard interval × ease, ease unchanged
 
 export function createRecord(id: number, rootIndex: RootIndex): SRSRecord {
   return {
@@ -46,6 +47,13 @@ export function gradeRecord(record: SRSRecord, grade: SRSGrade): SRSRecord {
     r.intervalDays = interval
     r.easeFactor = Math.max(MIN_EASE, r.easeFactor - 0.15)
     r.dueAt = now + interval * 86_400_000
+  } else if (grade === 'good') {
+    const interval = r.intervalDays < 1
+      ? 1
+      : Math.round(r.intervalDays * r.easeFactor * GOOD_FACTOR)
+    r.intervalDays = Math.max(1, interval)
+    // ease factor unchanged — that's the whole point of "good"
+    r.dueAt = now + r.intervalDays * 86_400_000
   } else {
     // easy
     r.easyCount++
