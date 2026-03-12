@@ -240,7 +240,7 @@ function ToggleSwitch({ on, onToggle, color }: { on: boolean; onToggle: () => vo
       ].join(' ')}
     >
       <span className={[
-        'absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200',
+        'absolute left-0 top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200',
         on ? 'translate-x-5' : 'translate-x-0.5',
       ].join(' ')} />
     </button>
