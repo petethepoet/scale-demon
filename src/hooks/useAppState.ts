@@ -150,8 +150,13 @@ export function useAppState() {
 
   // ─── Stats ────────────────────────────────────────────────────────────
   const stats = useMemo(() => {
+    // Preferred-root counts (for the progress screen breakdown)
     let due = 0, weak = 0, seen = 0, mastered = 0, learning = 0, stable = 0, favorites = 0
+    // Cross-root totals
+    let dueAllRoots = 0, masteredAllRoots = 0
     records.forEach(r => {
+      if (isDue(r)) dueAllRoots++
+      if (r.mastery === 'mastered') masteredAllRoots++
       if (r.rootIndex !== settings.rootIndex) return
       seen++
       if (isDue(r)) due++
@@ -161,7 +166,10 @@ export function useAppState() {
       if (r.mastery === 'stable') stable++
       if (r.favorite) favorites++
     })
-    return { due, weak, seen, mastered, learning, stable, favorites, streak, newSeenToday }
+    return {
+      due, weak, seen, mastered, learning, stable, favorites, streak, newSeenToday,
+      dueAllRoots, masteredAllRoots,
+    }
   }, [records, settings.rootIndex, streak, newSeenToday])
 
   const sessionInfo = useMemo(() => {

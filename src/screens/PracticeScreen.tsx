@@ -42,24 +42,35 @@ export function PracticeScreen({ state }: PracticeScreenProps) {
 
   const isFavorite = state.records.get(`${currentItem.id}:${currentItem.rootIndex}`)?.favorite ?? false
   const isFocused = state.focusId === currentItem.id
+  // Use the current item's root for display — may differ from preferred root
+  // when due/weak items from other roots surface in the queue
+  const displayRoot = currentItem.rootIndex
+  const isOffRoot = displayRoot !== settings.rootIndex
 
   return (
     <>
       {/* Main scrollable content */}
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 pt-4 pb-36 space-y-3">
 
-        {/* Root selector — compact pill row */}
-        <RootSelector
-          rootIndex={settings.rootIndex}
-          naming={settings.noteNaming}
-          onChange={ri => state.updateSettings({ rootIndex: ri as RootIndex })}
-        />
+        {/* Root selector — sets preferred root for new/variety items */}
+        <div className="flex items-center gap-2">
+          <RootSelector
+            rootIndex={settings.rootIndex}
+            naming={settings.noteNaming}
+            onChange={ri => state.updateSettings({ rootIndex: ri as RootIndex })}
+          />
+          {isOffRoot && (
+            <span className="flex-shrink-0 text-[10px] font-ui text-amber-400/80 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-full whitespace-nowrap">
+              reviewing in {['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'][displayRoot]}
+            </span>
+          )}
+        </div>
 
         {/* Current Set Card */}
         <CurrentSetCard
           pitchSet={currentPitchSet}
           reason={currentItem.reason}
-          rootIndex={settings.rootIndex}
+          rootIndex={displayRoot}
           naming={settings.noteNaming}
           isFavorite={isFavorite}
           isHeld={!!state.heldItem}
@@ -70,7 +81,7 @@ export function PracticeScreen({ state }: PracticeScreenProps) {
         <div className="card p-4">
           <FretboardPanel
             intervals={currentPitchSet.intervals}
-            rootIndex={settings.rootIndex}
+            rootIndex={displayRoot}
             tuning={settings.tuning}
             naming={settings.noteNaming}
             displayMode={displayMode}

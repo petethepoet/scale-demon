@@ -109,80 +109,95 @@ export interface QueueOptions {
   sessionSize: number
 }
 
+const ALL_ROOTS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const
+
 export function buildQueue(opts: QueueOptions): QueueItem[] {
   const { records, allIds, rootIndex, dailyNewCap, newSeenToday, focusId, sessionSize } = opts
   const now = Date.now()
 
   const queue: QueueItem[] = []
-  const added = new Set<number>()
+  // Deduplicate by id:rootIndex — same scale in different roots are distinct items
+  const added = new Set<string>()
 
-  function addItem(id: number, reason: QueueReason) {
-    if (!added.has(id)) {
-      added.add(id)
-      queue.push({ id, rootIndex, reason })
+  function addItem(id: number, ri: RootIndex, reason: QueueReason) {
+    const key = `${id}:${ri}`
+    if (!added.has(key)) {
+      added.add(key)
+      queue.push({ id, rootIndex: ri, reason })
     }
   }
 
-  // Focus mode: only add focus set
+  // Focus mode: only add focus set in preferred root
   if (focusId !== null) {
-    addItem(focusId, 'due')
+    addItem(focusId, rootIndex, 'due')
     return queue
   }
 
-  // 1. Due items
-  const dueItems: number[] = []
+  // 1. Due items — scan ALL roots, not just preferred
+  //    Sort: preferred root first, then others alphabetically by rootIndex
+  const dueItems: Array<{ id: number; ri: RootIndex }> = []
   for (const id of allIds) {
-    const key = `${id}:${rootIndex}`
-    const rec = records.get(key)
-    if (rec && isDue(rec)) {
-      dueItems.push(id)
+    for (const ri of ALL_ROOTS) {
+      const rec = records.get(`${id}:${ri}`)
+      if (rec && isDue(rec)) {
+        dueItems.push({ id, ri: ri as RootIndex })
+      }
     }
   }
-  dueItems.forEach(id => addItem(id, 'due'))
+  // Preferred root first so the session starts familiar
+  dueItems.sort((a, b) => {
+    const aScore = a.ri === rootIndex ? 0 : 1
+    const bScore = b.ri === rootIndex ? 0 : 1
+    return aScore - bScore
+  })
+  dueItems.forEach(({ id, ri }) => addItem(id, ri, 'due'))
 
-  // 2. Weak spots (not already due)
-  const weakItems: number[] = []
+  // 2. Weak spots — scan ALL roots (not already due)
+  const weakItems: Array<{ id: number; ri: RootIndex }> = []
   for (const id of allIds) {
-    if (added.has(id)) continue
-    const key = `${id}:${rootIndex}`
-    const rec = records.get(key)
-    if (rec && isWeakSpot(rec) && !isDue(rec)) {
-      weakItems.push(id)
+    for (const ri of ALL_ROOTS) {
+      const key = `${id}:${ri}`
+      if (added.has(key)) continue
+      const rec = records.get(key)
+      if (rec && isWeakSpot(rec) && !isDue(rec)) {
+        weakItems.push({ id, ri: ri as RootIndex })
+      }
     }
   }
-  weakItems.slice(0, Math.max(0, sessionSize - queue.length)).forEach(id => addItem(id, 'weak'))
+  // Preferred root first
+  weakItems.sort((a, b) => (a.ri === rootIndex ? 0 : 1) - (b.ri === rootIndex ? 0 : 1))
+  weakItems
+    .slice(0, Math.max(0, sessionSize - queue.length))
+    .forEach(({ id, ri }) => addItem(id, ri, 'weak'))
 
-  // 3. New items (never seen)
+  // 3. New items — always in preferred root (don't overwhelm with cross-root introductions)
   const newAllowed = Math.max(0, dailyNewCap - newSeenToday)
   if (newAllowed > 0 && queue.length < sessionSize) {
     let newAdded = 0
     for (const id of allIds) {
-      if (added.has(id)) continue
+      if (added.has(`${id}:${rootIndex}`)) continue
       if (newAdded >= newAllowed) break
-      const key = `${id}:${rootIndex}`
-      const rec = records.get(key)
+      const rec = records.get(`${id}:${rootIndex}`)
       if (!rec || rec.reps === 0) {
-        addItem(id, 'new')
+        addItem(id, rootIndex, 'new')
         newAdded++
       }
     }
   }
 
-  // 4. Variety (seen but not due, fill rest of session)
+  // 4. Variety — preferred root only (seen but not due, fill rest of session)
   if (queue.length < sessionSize) {
     const seenNotDue: number[] = []
     for (const id of allIds) {
-      if (added.has(id)) continue
-      const key = `${id}:${rootIndex}`
-      const rec = records.get(key)
+      if (added.has(`${id}:${rootIndex}`)) continue
+      const rec = records.get(`${id}:${rootIndex}`)
       if (rec && rec.reps > 0 && !isDue(rec)) {
         seenNotDue.push(id)
       }
     }
-    // Pick random variety
     shuffleArray(seenNotDue)
       .slice(0, sessionSize - queue.length)
-      .forEach(id => addItem(id, 'variety'))
+      .forEach(id => addItem(id, rootIndex, 'variety'))
   }
 
   return queue

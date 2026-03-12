@@ -47,9 +47,19 @@ export function ProgressScreen({ state, onNavigate }: ProgressScreenProps) {
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCard label="Due" value={stats.due} color="text-ember" sub="need review" />
+        <StatCard
+          label="Due"
+          value={stats.dueAllRoots}
+          color="text-ember"
+          sub={stats.dueAllRoots !== stats.due ? `${stats.due} in this key` : 'need review'}
+        />
         <StatCard label="Streak" value={`${stats.streak}d`} color="text-ember-hot" sub="days straight" />
-        <StatCard label="Mastered" value={stats.mastered} color="text-demon-purple-light" sub="fully stable" />
+        <StatCard
+          label="Mastered"
+          value={stats.masteredAllRoots}
+          color="text-demon-purple-light"
+          sub={stats.masteredAllRoots !== stats.mastered ? `${stats.mastered} in this key` : 'fully stable'}
+        />
         <StatCard label="Favorites" value={stats.favorites} color="text-ice" sub="saved sets" />
       </div>
 
