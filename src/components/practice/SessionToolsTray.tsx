@@ -1,17 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
-import {
-  startMetronome, stopMetronome, isMetronomeRunning,
-  startDrone, stopDrone, isDroneRunning,
-} from '../../utils/audio'
+import { startMetronome, stopMetronome } from '../../utils/audio'
 
 interface SessionToolsTrayProps {
   rootIndex: number
 }
 
-export function SessionToolsTray({ rootIndex }: SessionToolsTrayProps) {
-  const [isOpen, setIsOpen] = useState(false)
+export function SessionToolsTray({ rootIndex: _rootIndex }: SessionToolsTrayProps) {
   const [metronomeOn, setMetronomeOn] = useState(false)
-  const [droneOn, setDroneOn] = useState(false)
   const [bpm, setBpm] = useState(80)
   const [elapsed, setElapsed] = useState(0)
   const [timerOn, setTimerOn] = useState(false)
@@ -37,16 +32,6 @@ export function SessionToolsTray({ rootIndex }: SessionToolsTrayProps) {
     }
   }
 
-  function toggleDrone() {
-    if (droneOn) {
-      stopDrone()
-      setDroneOn(false)
-    } else {
-      startDrone(rootIndex)
-      setDroneOn(true)
-    }
-  }
-
   function handleBpmChange(val: number) {
     setBpm(val)
     if (metronomeOn) {
@@ -62,91 +47,76 @@ export function SessionToolsTray({ rootIndex }: SessionToolsTrayProps) {
   }
 
   return (
-    <div className="rounded-card border border-white/8 overflow-hidden">
-      <button
-        onClick={() => setIsOpen(o => !o)}
-        className="w-full flex items-center justify-between px-4 py-2.5 bg-void/40 hover:bg-void/60 transition-colors"
-      >
-        <span className="text-xs text-ash font-ui">Session Tools</span>
-        <div className="flex items-center gap-2">
-          {metronomeOn && <span className="w-1.5 h-1.5 rounded-full bg-ember animate-pulse-glow" />}
-          {droneOn && <span className="w-1.5 h-1.5 rounded-full bg-ice animate-pulse-glow" />}
-          {timerOn && <span className="text-xs font-mono text-ash">{formatTime(elapsed)}</span>}
-          <svg
-            width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A83A6" strokeWidth="2"
-            className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+    <div className="flex items-center gap-3 bg-void/40 rounded-card border border-white/6 px-4 py-2.5">
+
+      {/* Metronome toggle + label */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <MetronomeIcon active={metronomeOn} />
+        <ToggleSwitch on={metronomeOn} onToggle={toggleMetronome} color="ember" />
+      </div>
+
+      {/* BPM slider */}
+      <div className="flex items-center gap-2 flex-1">
+        <input
+          type="range" min={40} max={220} value={bpm}
+          onChange={e => handleBpmChange(Number(e.target.value))}
+          className="flex-1 h-1 accent-ember cursor-pointer"
+        />
+        <span className="text-xs font-mono text-ash w-7 text-right flex-shrink-0">{bpm}</span>
+      </div>
+
+      {/* Divider */}
+      <div className="w-px h-4 bg-white/10 flex-shrink-0" />
+
+      {/* Timer */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <span className={[
+          'text-xs font-mono w-9 text-right',
+          timerOn ? 'text-demon-purple-light' : 'text-ash/50',
+        ].join(' ')}>
+          {formatTime(elapsed)}
+        </span>
+        {!timerOn && elapsed > 0 && (
+          <button
+            onClick={() => setElapsed(0)}
+            className="text-[10px] text-ash/40 hover:text-ash transition-colors"
           >
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </div>
-      </button>
-
-      {isOpen && (
-        <div className="px-4 py-3 bg-void/20 border-t border-white/6 grid grid-cols-2 gap-3 animate-fade-in">
-          {/* Metronome */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-ash">Metronome</span>
-              <ToggleSwitch on={metronomeOn} onToggle={toggleMetronome} color="ember" />
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="range" min={40} max={220} value={bpm}
-                onChange={e => handleBpmChange(Number(e.target.value))}
-                className="flex-1 h-1 accent-ember"
-              />
-              <span className="text-xs font-mono text-ash w-8 text-right">{bpm}</span>
-            </div>
-          </div>
-
-          {/* Drone */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-ash">Drone</span>
-              <ToggleSwitch on={droneOn} onToggle={toggleDrone} color="ice" />
-            </div>
-            <p className="text-[10px] text-ash/50">Root tone held</p>
-          </div>
-
-          {/* Timer */}
-          <div className="space-y-2 col-span-2 border-t border-white/6 pt-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-ash">Timer</span>
-              {timerOn && (
-                <span className="text-sm font-mono text-bone">{formatTime(elapsed)}</span>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <ToggleSwitch on={timerOn} onToggle={() => setTimerOn(t => !t)} color="purple" />
-              {!timerOn && elapsed > 0 && (
-                <button
-                  onClick={() => setElapsed(0)}
-                  className="text-[10px] text-ash/50 hover:text-ash"
-                >
-                  Reset
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+            ↺
+          </button>
+        )}
+        <ToggleSwitch on={timerOn} onToggle={() => setTimerOn(t => !t)} color="purple" />
+      </div>
     </div>
+  )
+}
+
+// ─── Sub-components ────────────────────────────────────────────────────────────
+
+function MetronomeIcon({ active }: { active: boolean }) {
+  return (
+    <svg
+      width="14" height="14" viewBox="0 0 24 24" fill="none"
+      stroke={active ? '#F28C28' : '#8A83A6'} strokeWidth="2"
+      strokeLinecap="round" strokeLinejoin="round"
+    >
+      <path d="M12 20V4M8 20l8-16M6 20h12"/>
+    </svg>
   )
 }
 
 function ToggleSwitch({ on, onToggle, color }: { on: boolean; onToggle: () => void; color: string }) {
   const colors: Record<string, string> = {
     ember: 'bg-ember',
-    ice: 'bg-ice',
     purple: 'bg-demon-purple',
   }
   return (
     <button
       onClick={onToggle}
       className={[
-        'relative w-8 h-4 rounded-full transition-colors duration-200',
-        on ? (colors[color] ?? 'bg-ember') : 'bg-ash/20',
+        'relative w-8 h-4 rounded-full transition-colors duration-200 flex-shrink-0',
+        on ? (colors[color] ?? 'bg-ember') : 'bg-white/15',
       ].join(' ')}
+      aria-pressed={on}
     >
       <span className={[
         'absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform duration-200',

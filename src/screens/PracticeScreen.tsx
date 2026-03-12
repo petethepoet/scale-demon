@@ -3,10 +3,9 @@ import type { FretboardDisplayMode, FretboardPositionMode, RootIndex } from '../
 import type { useAppState } from '../hooks/useAppState'
 import { CurrentSetCard } from '../components/practice/CurrentSetCard'
 import { FretboardPanel } from '../components/practice/FretboardPanel'
-import { ActionPanel, StickyMobileBar } from '../components/practice/ActionPanel'
+import { ActionPanel } from '../components/practice/ActionPanel'
 import { SessionStatusStrip } from '../components/practice/SessionStatusStrip'
 import { SessionToolsTray } from '../components/practice/SessionToolsTray'
-import { getRootName } from '../utils/pitchSet'
 
 type AppState = ReturnType<typeof useAppState>
 
@@ -42,17 +41,15 @@ export function PracticeScreen({ state }: PracticeScreenProps) {
 
   const isFavorite = state.records.get(`${currentItem.id}:${currentItem.rootIndex}`)?.favorite ?? false
   const isFocused = state.focusId === currentItem.id
-  // Use the current item's root for display — may differ from preferred root
-  // when due/weak items from other roots surface in the queue
   const displayRoot = currentItem.rootIndex
   const isOffRoot = displayRoot !== settings.rootIndex
 
   return (
     <>
-      {/* Main scrollable content */}
-      <main className="flex-1 max-w-3xl mx-auto w-full px-4 pt-4 pb-36 space-y-3">
+      {/* Main scrollable content — pb accounts for sticky bottom bar height */}
+      <main className="flex-1 max-w-3xl mx-auto w-full px-4 pt-4 pb-44 space-y-3">
 
-        {/* Root selector — sets preferred root for new/variety items */}
+        {/* Root selector */}
         <div className="flex items-center gap-2">
           <RootSelector
             rootIndex={settings.rootIndex}
@@ -77,8 +74,8 @@ export function PracticeScreen({ state }: PracticeScreenProps) {
           onFavorite={() => state.toggleFavorite(currentItem.id)}
         />
 
-        {/* Fretboard */}
-        <div className="card p-4">
+        {/* Fretboard — reduced padding so it breathes */}
+        <div className="card p-2 sm:p-3">
           <FretboardPanel
             intervals={currentPitchSet.intervals}
             rootIndex={displayRoot}
@@ -91,7 +88,7 @@ export function PracticeScreen({ state }: PracticeScreenProps) {
           />
         </div>
 
-        {/* Session status strip */}
+        {/* Session status */}
         <SessionStatusStrip
           dueCount={sessionInfo.dueCount}
           newRemaining={sessionInfo.newRemaining}
@@ -100,38 +97,27 @@ export function PracticeScreen({ state }: PracticeScreenProps) {
           streak={stats.streak}
         />
 
-        {/* Action panel — desktop only (sticky bar handles mobile) */}
-        <div className="hidden sm:block">
-          <ActionPanel
-            onGrade={state.grade}
-            onHold={state.hold}
-            onNext={state.next}
-            onFocus={() => state.setFocus(isFocused ? null : currentItem.id)}
-            isHeld={!!state.heldItem}
-            isFocused={isFocused}
-          />
-        </div>
+        {/* Session tools — always visible, no accordion */}
+        <SessionToolsTray rootIndex={displayRoot} />
 
-        {/* Session tools */}
-        <SessionToolsTray rootIndex={settings.rootIndex} />
       </main>
 
-      {/* Sticky grade bar — mobile only */}
-      <div className="sm:hidden">
-        <StickyMobileBar
-          onGrade={state.grade}
-          onHold={state.hold}
-          onNext={state.next}
-          isHeld={!!state.heldItem}
-        />
-      </div>
+      {/* Universal sticky grade bar */}
+      <ActionPanel
+        onGrade={state.grade}
+        onHold={state.hold}
+        onNext={state.next}
+        onFocus={() => state.setFocus(isFocused ? null : currentItem.id)}
+        isHeld={!!state.heldItem}
+        isFocused={isFocused}
+      />
     </>
   )
 }
 
 // ─── Root Selector ────────────────────────────────────────────────────────────
 
-const ROOTS = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
+const ROOTS      = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
 const FLAT_ROOTS = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B']
 
 interface RootSelectorProps {
@@ -143,7 +129,7 @@ interface RootSelectorProps {
 function RootSelector({ rootIndex, naming, onChange }: RootSelectorProps) {
   const names = naming === 'flats' ? FLAT_ROOTS : ROOTS
   return (
-    <div className="flex gap-1 overflow-x-auto scrollbar-thin pb-1">
+    <div className="flex gap-1 overflow-x-auto scrollbar-thin pb-1 flex-1">
       {names.map((name, i) => (
         <button
           key={i}
